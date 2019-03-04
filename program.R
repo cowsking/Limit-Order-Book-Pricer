@@ -7,8 +7,7 @@ pricer <- function(infile, outfile, targetsize){
   expense <- 0
   bidBook <- data.frame()
   askBook <- data.frame()
-  #for(i in 1:nrow(input)){
-  for(i in 1:6){
+  for(i in 1:nrow(input)){
     if(input[i,'type'] == 'A'){
       if(input[i, 'side'] == 'B'){
         bidBook <- rbind(bidBook,input[i,c(3,5,6)])
@@ -37,27 +36,27 @@ pricer <- function(infile, outfile, targetsize){
       calculate <- calculating(bidBook, targetsize)
       if(calculate!= income){
         income <- calculate
-        report(input[i, "timestamp"],"S", income)
+        report(input[i, "timestamp"],"S", income, outfile)
       }
     }
     else{
       if(income > 0){
-        report(input[i, "timestamp"],"S", 0)
+        report(input[i, "timestamp"],"S", 0, outfile)
         income <- 0
       }
     }
     
-    if(totalAsksize >= targetsize){
+    if(totalAskSize >= targetsize){
       calculate <- calculating(askBook, targetsize)
       if(calculate!= expense){
         expense <- calculate
-        report(input[i, "timestamp"],"B", expense)
+        report(input[i, "timestamp"],"B", expense, outfile)
       }
     }
     else{
       if(expense > 0){
-        report(input[i, "timestamp"],"B", 0)
-        income <- 0
+        report(input[i, "timestamp"],"B", 0, outfile)
+        expense <- 0
       }
     }
   }
@@ -110,14 +109,16 @@ calculating <- function(book, targetsize){
   return(total)
 }
 
-report <- function(timestamp,side, price){
+report <- function(timestamp,side, price, output){
   if(price == 0){
+    cat(file=output, append = TRUE, timestamp, side, "NA\n")
     print(paste(timestamp, side, "NA"))
   }
   else{
+    cat(file=output, append = TRUE, timestamp, side, format(price, nsmall=2), "\n")
     print(paste(timestamp, side, price))
   }
 }
 
-pricer("sample1_in.txt", 1, 200)
+pricer("sample1_in.txt", "test_out.txt", 1)
 
